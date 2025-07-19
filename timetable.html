@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>王缤假期任务计划表</title>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #4cc9f0;
+            --warning-color: #f72585;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            color: var(--dark-color);
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .current-task {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            margin-top: 1rem;
+            display: inline-block;
+            font-weight: 600;
+            backdrop-filter: blur(5px);
+        }
+        
+        .current-time {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .schedule {
+            padding: 2rem;
+        }
+        
+        .time-block {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+        
+        .time-block:hover {
+            transform: translateY(-5px);
+        }
+        
+        .time-block.current {
+            box-shadow: 0 0 0 3px var(--warning-color);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(247, 37, 133, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(247, 37, 133, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(247, 37, 133, 0); }
+        }
+        
+        .time {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1.5rem;
+            min-width: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-weight: 600;
+        }
+        
+        .time span {
+            font-size: 1.2rem;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 1.5rem;
+            background-color: white;
+            border-left: 4px solid var(--accent-color);
+        }
+        
+        .content h3 {
+            color: var(--secondary-color);
+            margin-bottom: 0.5rem;
+            font-size: 1.3rem;
+        }
+        
+        .content p {
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin: 2rem 0 1.5rem;
+            color: var(--secondary-color);
+            font-size: 1.5rem;
+            font-weight: 600;
+            position: relative;
+        }
+        
+        .section-title:after {
+            content: "";
+            display: block;
+            width: 100px;
+            height: 3px;
+            background: var(--accent-color);
+            margin: 0.5rem auto 0;
+        }
+        
+        .morning { border-left-color: #ff9e00; }
+        .morning .time { background-color: #ff9e00; }
+        
+        .forenoon { border-left-color: #00b4d8; }
+        .forenoon .time { background-color: #00b4d8; }
+        
+        .noon { border-left-color: #f72585; }
+        .noon .time { background-color: #f72585; }
+        
+        .afternoon { border-left-color: #4cc9f0; }
+        .afternoon .time { background-color: #4cc9f0; }
+        
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .time-block {
+                flex-direction: column;
+            }
+            
+            .time {
+                flex-direction: row;
+                justify-content: space-between;
+                min-width: auto;
+                padding: 1rem;
+            }
+            
+            .content {
+                border-left: none;
+                border-top: 4px solid var(--accent-color);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>王缤假期任务计划表</h1>
+            <p class="subtitle">学习</p>
+            <div id="currentTaskDisplay" class="current-task">
+                <div class="current-time" id="currentTime"></div>
+                <div id="currentTask"></div>
+            </div>
+        </header>
+        
+        <div class="schedule">
+            <h2 class="section-title">早晨</h2>
+            
+            <div class="time-block" id="task1" data-start="6:30" data-end="7:00">
+                <div class="time">
+                    <span>6:30-7:00</span>
+                </div>
+                <div class="content morning">
+                    <h3>起床洗漱、简单运动</h3>
+                  
+                </div>
+            </div>
+            
+            <div class="time-block" id="task2" data-start="7:00" data-end="7:30">
+                <div class="time">
+                    <span>7:00-7:30</span>
+                </div>
+                <div class="content morning">
+                    <h3>早餐时间</h3>
+                </div>
+            </div>
+            
+            <div class="time-block" id="task3" data-start="7:30" data-end="8:30">
+                <div class="time">
+                    <span>7:30-8:30</span>
+                </div>
+                <div class="content morning">
+                    <h3>背单词</h3>
+                </div>
+            </div>
+            
+            <div class="time-block" id="task4" data-start="8:30" data-end="8:45">
+                <div class="time">
+                    <span>8:30-8:45</span>
+                </div>
+                <div class="content morning">
+                    <h3>休息时间</h3>
+                </div>
+            </div>
+            
+            <h2 class="section-title">上午</h2>
+            
+            <div class="time-block" id="task5" data-start="8:45" data-end="10:15">
+                <div class="time">
+                    <span>8:45-10:15</span>
+                </div>
+                <div class="content forenoon">
+                    <h3>高中数学做习题</h3>
+                </div>
+            </div>
+            
+            <div class="time-block" id="task6" data-start="10:15" data-end="10:30">
+                <div class="time">
+                    <span>10:15-10:30</span>
+                </div>
+                <div class="content forenoon">
+                    <h3>休息时间</h3>
+                </div>
+            </div>
+            
+            <div class="time-block" id="task7" data-start="10:30" data-end="12:00">
+                <div class="time">
+                    <span>10:30-12:00</span>
+                </div>
+                <div class="content forenoon">
+                    <h3>高中物理做习题</h3>
+                </div>
+            </div>
+            
+            <h2 class="section-title">中午</h2>
+            
+            <div class="time-block" id="task8" data-start="12:00" data-end="13:00">
+                <div class="time">
+                    <span>12:00-13:00</span>
+                </div>
+                <div class="content noon">
+                    <h3>午餐时间</h3>
+                </div>
+            </div>
+            
+            <div class="time-block" id="task9" data-start="13:00" data-end="14:30">
+                <div class="time">
+                    <span>13:00-14:30</span>
+                </div>
+                <div class="content noon">
+                    <h3>午休</h3>
+                </div>
+            </div>
+            
+            <h2 class="section-title">下午</h2>
+            
+            <div class="time-block" id="task10" data-start="14:30" data-end="15:00">
+                <div class="time">
+                    <span>14:30-15:00</span>
+                </div>
+                <div class="content afternoon">
+                    <h3>休息</h3>
+                </div>
+            </div>
+            
+            <div class="time-block" id="task11" data-start="15:00" data-end="16:30">
+                <div class="time">
+                    <span>15:00-16:30</span>
+                </div>
+                <div class="content afternoon">
+                    <h3>高中化学做习题</h3>
+                </div>
+            </div>
+            
+            <div class="time-block" id="task12" data-start="16:30" data-end="16:45">
+                <div class="time">
+                    <span>16:30-16:45</span>
+                </div>
+                <div class="content afternoon">
+                    <h3>休息时间</h3>
+                </div>
+            </div>
+            
+            <div class="time-block" id="task13" data-start="16:45" data-end="18:15">
+                <div class="time">
+                    <span>16:45-18:15</span>
+                </div>
+                <div class="content afternoon">
+                    <h3>高中生物做习题</h3>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2025 王缤假期学习计划</p>
+        </footer>
+    </div>
+
+    <script>
+        // 获取所有任务块
+        const tasks = document.querySelectorAll('.time-block');
+        const currentTaskDisplay = document.getElementById('currentTask');
+        const currentTimeDisplay = document.getElementById('currentTime');
+        
+        // 更新时间显示和当前任务
+        function updateCurrentTask() {
+            const now = new Date();
+            const currentHours = now.getHours();
+            const currentMinutes = now.getMinutes();
+            const currentTime = currentHours * 60 + currentMinutes;
+            
+            // 更新时间显示
+            const formattedTime = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+            currentTimeDisplay.textContent = formattedTime;
+            
+            let currentActiveTask = null;
+            let foundCurrentTask = false;
+            
+            // 检查每个任务是否是当前任务
+            tasks.forEach(task => {
+                const startTime = task.dataset.start.split(':');
+                const endTime = task.dataset.end.split(':');
+                
+                const startHours = parseInt(startTime[0]);
+                const startMinutes = parseInt(startTime[1]);
+                const endHours = parseInt(endTime[0]);
+                const endMinutes = parseInt(endTime[1]);
+                
+                const startTotal = startHours * 60 + startMinutes;
+                const endTotal = endHours * 60 + endMinutes;
+                
+                // 移除所有current类
+                task.classList.remove('current');
+                
+                // 检查是否是当前任务
+                if (currentTime >= startTotal && currentTime < endTotal) {
+                    task.classList.add('current');
+                    currentActiveTask = task;
+                    foundCurrentTask = true;
+                    
+                    // 滚动到当前任务
+                    task.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            });
+            
+            // 更新当前任务显示
+            if (foundCurrentTask && currentActiveTask) {
+                const taskTitle = currentActiveTask.querySelector('h3').textContent;
+                const taskTime = currentActiveTask.querySelector('.time span').textContent;
+                currentTaskDisplay.innerHTML = `当前任务: <strong>${taskTime} ${taskTitle}</strong>`;
+            } else {
+                // 检查是否在计划时间之外
+                const firstTask = tasks[0];
+                const lastTask = tasks[tasks.length - 1];
+                
+                const firstStart = firstTask.dataset.start.split(':');
+                const lastEnd = lastTask.dataset.end.split(':');
+                
+                const dayStart = parseInt(firstStart[0]) * 60 + parseInt(firstStart[1]);
+                const dayEnd = parseInt(lastEnd[0]) * 60 + parseInt(lastEnd[1]);
+                
+                if (currentTime < dayStart) {
+                    currentTaskDisplay.innerHTML = `计划尚未开始，今日第一个任务: <strong>6:30-7:00 起床洗漱、简单运动</strong>`;
+                } else if (currentTime >= dayEnd) {
+                    currentTaskDisplay.innerHTML = `今日计划已完成，好好休息！`;
+                } else {
+                    // 这种情况理论上不应该发生，因为所有时间都应该被任务覆盖
+                    currentTaskDisplay.innerHTML = `当前无计划任务`;
+                }
+            }
+        }
+        
+        // 初始更新
+        updateCurrentTask();
+        
+        // 每分钟更新一次
+        setInterval(updateCurrentTask, 60000);
+    </script>
+</body>
+</html>
